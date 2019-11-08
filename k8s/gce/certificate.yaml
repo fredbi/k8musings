@@ -1,0 +1,18 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: help-test
+spec:
+  secretName: help-test-tls
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+  commonName: "help-test.dev.onec.co server"
+  organization:
+  - One Concern CA
+  dnsNames:
+  - help-test
+  - help-test.dev.onec.co
+  - "127.0.0.1"
+  - "::1"
+  - localhost

@@ -1,0 +1,13 @@
+# TEST FRED WITH HAPROXY (VOYAGER APPSCODE)
+apiVersion: v1
+kind: Service
+metadata:
+  name: intercom-help-center
+  labels:
+    notes: TEST FRED WITH HAPROXY (VOYAGER APPSCODE)
+  annotations:
+    ingress.appscode.com/use-dns-resolver: "true"
+    ingress.appscode.com/dns-resolver-nameservers: '["8.8.8.8:53", "8.8.4.4:53"]'
+spec:
+  externalName: custom.intercom.help
+  type: ExternalName

@@ -1,0 +1,53 @@
+# TEST FRED WITH HAPROXY (VOYAGER APPSCODE)
+apiVersion: voyager.appscode.com/v1beta1
+kind: Ingress
+metadata:
+  name: help-test-proxy
+  labels:
+    app.kubernetes.io/name: help-test-proxy
+    app.kubernetes.io/instance: help-test-proxy-v0
+    notes: TEST FRED WITH HAPROXY (VOYAGER APPSCODE)
+  annotations:
+    kubernetes.io/tls-acme: "true"
+
+    certmanager.k8s.io/acme-challenge-type: dns01
+    certmanager.k8s.io/acme-dns01-provider: clouddns
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+
+    ingress.appscode.com/type: LoadBalancer
+    ingress.appscode.com/backend-tls: ssl verify none
+    #ingress.appscode.com/replicas: '2'
+
+    #kubernetes.io/ingress.class: nginx
+    #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    #nginx.ingress.kubernetes.io/enable-cors: "false"
+    #nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    #nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    #nginx.ingress.kubernetes.io/proxy-read-timeout: "7200"
+    #nginx.ingress.kubernetes.io/proxy-send-timeout: "7200"
+    #nginx.ingress.kubernetes.io/secure-backends: "true"
+    #nginx.ingress.kubernetes.io/secure-verify-ca-secret: cluster-ca
+spec:
+  tls:
+    - hosts:
+        - help-test.dev.onec.co
+      secretName: help-test-tls
+  rules:
+    - host: help-test.dev.onec.co
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: intercom-help-center
+              servicePort: 443
+              headerRules:
+                # http-request set-header X-Forwarded-Host {value}
+                - X-Forwarded-Host help.test.oneconcern.com
+                - Host help-test.oneconcern.com
+              backendRules:
+                - 'http-request replace-value Cookie (.*)domain=\.onec\.co$ domain=.oneconcern.com'
+                - 'http-response replace-value Set-Cookie (.*)domain=\.onec\.co$ domain=.oneconcern.com'
+        alpn:
+          - h2
+          - http/1.1
+          - http/1.0

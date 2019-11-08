@@ -1,0 +1,46 @@
+apiVersion: voyager.appscode.com/v1beta1
+kind: Ingress
+metadata:
+  name: https-proxy
+  labels:
+    app.kubernetes.io/name: https-proxy
+    app.kubernetes.io/instance: proxy-v0
+  annotations:
+    ingress.appscode.com/type: NodePort
+    #ingress.appscode.com/type: LoadBalancer
+    #certmanager.k8s.io/acme-challenge-type: http01
+    #certmanager.k8s.io/acme-http01-edit-in-place: "false"
+    #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    #kubernetes.io/ingress.class: nginx
+    #kubernetes.io/tls-acme: "true"
+    #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    #nginx.ingress.kubernetes.io/enable-cors: "false"
+    #nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    #nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    #nginx.ingress.kubernetes.io/proxy-read-timeout: "7200"
+    #nginx.ingress.kubernetes.io/proxy-send-timeout: "7200"
+    #nginx.ingress.kubernetes.io/secure-backends: "true"
+    #nginx.ingress.kubernetes.io/secure-verify-ca-secret: cluster-ca
+spec:
+# backend:
+#   serviceName: intercom-help-center
+#   servicePort: 80
+#  tls:
+#    - hosts:
+#        - proxy.localtest.me
+#      #secretName: proxy.localtest.me
+  rules:
+    - host: help.localtest.me
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: intercom-help-center
+              servicePort: 80
+              headerRules:
+                # http-request set-header X-Forwarded-Host %[base]
+                - X-Forwarded-Host help.test.onec.co
+                - Host help.test.onec.co
+              backendRules:
+                - 'http-request replace-value Cookie (.*)domain=\.localtest\.me$ domain=.onec.co'
+                - 'http-response replace-value Set-Cookie (.*)domain=\.localtest\.me$ domain=.onec.co'
